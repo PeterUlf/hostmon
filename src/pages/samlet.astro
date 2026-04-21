@@ -1,6 +1,8 @@
 ---
 //@ts-nocheck
 
+import BandCard from "../components/BandCard.astro";
+
 const url = `${import.meta.env.SUPABASE_URL}/rest/v1/kunstnere?select=*`; // URL til Supabase API med kunstnere tabellen
 const apiKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY; // API nøgle til autentificering
 
@@ -21,41 +23,97 @@ const bands = await fetch(url, { // Henter alle bands fra databasen
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Samlet</title>
 		<style>
+			:root {
+				font-family: Arial, sans-serif;
+			}
+
+			body {
+				margin: 0;
+				padding: 2rem 1rem 4rem;
+				background: #f7f7f7;
+				color: #111;
+			}
+
+			main {
+				max-width: 60rem;
+				margin: 0 auto;
+			}
+
+			nav {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				margin-bottom: 1.5rem;
+			}
+
+			nav a {
+				color: #111;
+			}
+
+			#filter-controls {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				margin: 1.5rem 0;
+			}
+
+			button {
+				padding: 0.75rem 1rem;
+				border: 1px solid #111;
+				background: #fff;
+				cursor: pointer;
+			}
+
+			#band-list {
+				display: grid;
+				gap: 1rem;
+			}
+
+			article {
+				padding: 1rem;
+				border: 1px solid #d7d7d7;
+				background: #fff;
+			}
+
 			.hidden {
 				display: none; /* Skjuler elementer med hidden klassen */
 			}
 		</style>
 	</head>
 	<body>
-		
+		<main>
+			<nav>
+				<a href="/">Forside</a>
+				<a href="/samlet">Samlet</a>
+				<a href="/filtrering">Filtrering</a>
+				<a href="/sortering">Sortering</a>
+			</nav>
 
+			<h1>Samlet</h1>
+			<p>Her kan du både filtrere og sortere bands.</p>
 
+			<div id="filter-controls"> <!-- Kontrolpanel til filtrering og sortering -->
+			  <button type="button" data-filter-day="all">Alle bands</button> <!-- Vis alle bands -->
+			  <button type="button" data-filter-day="fredag">Fredag</button> <!-- Filtrer kun fredagens bands -->
+			  <button type="button" data-filter-day="lørdag">Lørdag</button> <!-- Filtrer kun lørdagens bands -->
+			  <button type="button" data-sort-time="asc">Tidspunkt stigende</button> <!-- Sorter tidligst først -->
+			  <button type="button" data-sort-time="desc">Tidspunkt faldende</button> <!-- Sorter senest først -->
+			</div>
 
-<div id="filter-controls"> <!-- Kontrolpanel til filtrering og sortering -->
-  <button type="button" data-filter-day="all">Alle bands</button> <!-- Vis alle bands -->
-  <button type="button" data-filter-day="fredag">Fredag</button> <!-- Filtrer kun fredagens bands -->
-  <button type="button" data-filter-day="lørdag">Lørdag</button> <!-- Filtrer kun lørdagens bands -->
-  <button type="button" data-sort-time="asc">Tidspunkt stigende</button> <!-- Sorter tidligst først -->
-  <button type="button" data-sort-time="desc">Tidspunkt faldende</button> <!-- Sorter senest først -->
-</div>
-
-<section id="band-list" aria-live="polite"> <!-- Liste over alle bands med tilgængelighed -->
-  {bands.map((band) => ( // Løber igennem alle bands og opretter kort
-    <article
-      data-band // Markerer elementet som et band-kort
-      data-name={band.navn} // Gemmer bandnavn til sortering (læses i JS som dataset.name)
-      data-day={band.spilledag} // Gemmer spilledag til filtrering (læses i JS som dataset.day)
-      data-time={band.spilletidspunkt} // Gemmer tidspunkt til sortering (læses i JS som dataset.time)
-    >
-      <h2>{band.navn}</h2> 
-      <p>{band.spilledag} kl. {band.spilletidspunkt}</p> 
-    </article>
-  ))}
-</section>
-		
-
+			<section id="band-list" aria-live="polite"> <!-- Liste over alle bands med tilgængelighed -->
+			  {bands.map((band) => ( // Løber igennem alle bands og opretter kort
+			    <BandCard
+			      band={band}
+			      data-band // Markerer elementet som et band-kort
+			      data-name={band.navn} // Gemmer bandnavn til sortering (læses i JS som dataset.name)
+			      data-day={band.spilledag} // Gemmer spilledag til filtrering (læses i JS som dataset.day)
+			      data-time={band.spilletidspunkt} // Gemmer tidspunkt til sortering (læses i JS som dataset.time)
+			    />
+			  ))}
+			</section>
+		</main>
 
 	</body>
 </html>

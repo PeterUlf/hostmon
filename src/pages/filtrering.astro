@@ -1,6 +1,8 @@
 ---
 //@ts-nocheck
 
+import BandCard from "../components/BandCard.astro";
+
 const url = `${import.meta.env.SUPABASE_URL}/rest/v1/kunstnere?select=*`;
 const apiKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY;
 
@@ -41,10 +43,11 @@ const bands = await fetch(url, {
 
       <section id="band-list" aria-live="polite">
         {bands.map((band) => (
-          <article data-band data-day={band.spilledag}>
-            <h2>{band.navn}</h2>
-            <p>{band.spilledag} kl. {band.spilletidspunkt}</p>
-          </article>
+          <BandCard
+            band={band}
+            data-band
+            data-day={band.spilledag}
+          />
         ))}
       </section>
     </main>

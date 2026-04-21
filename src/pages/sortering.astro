@@ -1,6 +1,8 @@
 ---
 //@ts-nocheck
 
+import BandCard from "../components/BandCard.astro";
+
 const url = `${import.meta.env.SUPABASE_URL}/rest/v1/kunstnere?select=*`; // URL til Supabase API med kunstnere tabellen
 const apiKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY; // API nøgle til autentificering
 
@@ -40,13 +42,11 @@ const bands = await fetch(url, { // Henter alle bands fra databasen
 
       <section id="band-list" aria-live="polite"> <!-- Liste over alle bands med tilgængelighed -->
         {bands.map((band) => ( // Løber igennem alle bands og opretter kort
-          <article
+          <BandCard
+            band={band}
             data-band // Markerer elementet som et band-kort
             data-time={band.spilletidspunkt} // Gemmer tidspunkt til sortering (læses i JS som dataset.time)
-          >
-            <h2>{band.navn}</h2>
-            <p>{band.spilledag} kl. {band.spilletidspunkt}</p>
-          </article>
+          />
         ))}
       </section>
     </main>

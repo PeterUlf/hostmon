@@ -1,0 +1,11 @@
+---
+//@ts-nocheck
+
+// Forward data-* attributes from each page to the rendered article element.
+const { band, ...articleProps } = Astro.props;
+---
+
+<article {...articleProps}>
+  <h2>{band.navn}</h2>
+  <p>{band.spilledag} kl. {band.spilletidspunkt}</p>
+</article>
