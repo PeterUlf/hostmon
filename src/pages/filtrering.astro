@@ -67,7 +67,12 @@ const bands = await fetch(url, {
         const shouldShow =
           selectedDay === "all" || card.dataset.day === selectedDay;
 
-        card.classList.toggle("hidden", !shouldShow);
+        console.log("Skal vises?", shouldShow);
+        if (shouldShow) {
+          card.classList.remove("hidden");
+        } else {
+          card.classList.add("hidden");
+        }
       });
     });
   });
