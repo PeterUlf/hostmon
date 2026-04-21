@@ -1,0 +1,130 @@
+---
+//@ts-nocheck
+
+const url = `${import.meta.env.SUPABASE_URL}/rest/v1/kunstnere?select=*`;
+const apiKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY;
+
+const bands = await fetch(url, {
+  headers: {
+    apikey: apiKey,
+  },
+}).then((res) => res.json());
+---
+
+<html lang="da">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Filtrering</title>
+   
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a href="/">Forside</a>
+        <a href="/samlet">Samlet</a>
+        <a href="/filtrering">Filtrering</a>
+        <a href="/sortering">Sortering</a>
+      </nav>
+
+      <h1>Filtrering</h1>
+      <p>Her kan du kun filtrere bands efter spilledag.</p>
+
+      <div id="filter-controls">
+        <button type="button" data-filter-day="all">Alle bands</button>
+        <button type="button" data-filter-day="fredag">Fredag</button>
+        <button type="button" data-filter-day="lørdag">Lørdag</button>
+      </div>
+
+      <section id="band-list" aria-live="polite">
+        {bands.map((band) => (
+          <article data-band data-day={band.spilledag}>
+            <h2>{band.navn}</h2>
+            <p>{band.spilledag} kl. {band.spilletidspunkt}</p>
+          </article>
+        ))}
+      </section>
+    </main>
+  </body>
+</html>
+
+<script>
+  //@ts-nocheck
+  const filterButtons = document.querySelectorAll("[data-filter-day]");
+  const cards = document.querySelectorAll("[data-band]");
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedDay = button.dataset.filterDay;
+
+      cards.forEach((card) => {
+        const shouldShow =
+          selectedDay === "all" || card.dataset.day === selectedDay;
+
+        card.classList.toggle("hidden", !shouldShow);
+      });
+    });
+  });
+</script>
+
+
+ <style>
+      :root {
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 2rem 1rem 4rem;
+        background: #f7f7f7;
+        color: #111;
+      }
+
+      main {
+        max-width: 60rem;
+        margin: 0 auto;
+      }
+
+      nav {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+
+      nav a {
+        color: #111;
+      }
+
+      #filter-controls {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+      }
+
+      button {
+        padding: 0.75rem 1rem;
+        border: 1px solid #111;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      #band-list {
+        display: grid;
+        gap: 1rem;
+      }
+
+      article {
+        padding: 1rem;
+        border: 1px solid #d7d7d7;
+        background: #fff;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>

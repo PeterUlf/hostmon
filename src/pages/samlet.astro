@@ -1,0 +1,124 @@
+---
+//@ts-nocheck
+
+const url = `${import.meta.env.SUPABASE_URL}/rest/v1/kunstnere?select=*`; // URL til Supabase API med kunstnere tabellen
+const apiKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY; // API nøgle til autentificering
+
+const bands = await fetch(url, { // Henter alle bands fra databasen
+  headers: {
+    apikey: apiKey, // Sender API nøgle med i headeren
+  },
+}).then((res) => res.json()); // Konverterer response til JSON
+---
+
+
+
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+		<style>
+			.hidden {
+				display: none; /* Skjuler elementer med hidden klassen */
+			}
+		</style>
+	</head>
+	<body>
+		
+
+
+
+<div id="filter-controls"> <!-- Kontrolpanel til filtrering og sortering -->
+  <button type="button" data-filter-day="all">Alle bands</button> <!-- Vis alle bands -->
+  <button type="button" data-filter-day="fredag">Fredag</button> <!-- Filtrer kun fredagens bands -->
+  <button type="button" data-filter-day="lørdag">Lørdag</button> <!-- Filtrer kun lørdagens bands -->
+  <button type="button" data-sort-time="asc">Tidspunkt stigende</button> <!-- Sorter tidligst først -->
+  <button type="button" data-sort-time="desc">Tidspunkt faldende</button> <!-- Sorter senest først -->
+</div>
+
+<section id="band-list" aria-live="polite"> <!-- Liste over alle bands med tilgængelighed -->
+  {bands.map((band) => ( // Løber igennem alle bands og opretter kort
+    <article
+      data-band // Markerer elementet som et band-kort
+      data-name={band.navn} // Gemmer bandnavn til sortering (læses i JS som dataset.name)
+      data-day={band.spilledag} // Gemmer spilledag til filtrering (læses i JS som dataset.day)
+      data-time={band.spilletidspunkt} // Gemmer tidspunkt til sortering (læses i JS som dataset.time)
+    >
+      <h2>{band.navn}</h2> 
+      <p>{band.spilledag} kl. {band.spilletidspunkt}</p> 
+    </article>
+  ))}
+</section>
+		
+
+
+	</body>
+</html>
+
+
+
+<script>
+  // @ts-nocheck
+  const filterButtons = document.querySelectorAll("[data-filter-day]"); // Finder alle filter knapper
+  const sortButtons = document.querySelectorAll("[data-sort-time]"); // Finder alle sorterings knapper
+  const bandList = document.querySelector("#band-list"); // Finder band listen container
+  const cards = document.querySelectorAll("[data-band]"); // Finder alle band kort
+
+  filterButtons.forEach((button) => { // Tilføjer click event til hver filter knap
+    button.addEventListener("click", () => {
+      const selectedDay = button.dataset.filterDay; // Henter værdien fra data-filter-day attributten (f.eks. "fredag", "lørdag" eller "all") fra den knap brugeren klikkede på
+      console.log("Valgt dag:", selectedDay); // Debug: viser hvilken dag der er valgt
+
+      cards.forEach((card) => { // Løber igennem alle kort et af gangen
+        console.log("Kort spilledag:", card.dataset.day); // Debug: viser spilledagen for hvert kort
+        const shouldShow = // ShouldShow bliver enten sand eller falsk ud fra betingelserne neden under
+
+        // Næste linje tjekker to betingelser med OR (||): 
+        // Første betingelse (selectedDay === "all") er sand hvis brugeren har valgt "Alle bands" knappen. 
+        // Anden betingelse (card.dataset.day === selectedDay) sammenligner kortets spilledag med den valgte dag 
+        // (f.eks. hvis "fredag" er valgt, tjekkes om kortets spilledag også er "fredag"). 
+        // Hvis MINDST ÉN af disse to betingelser er opfyldt, bliver shouldShow sat til true, og kortet vil blive vist
+
+          selectedDay === "all" || card.dataset.day === selectedDay; // Vis hvis 'alle' eller matchende dag
+
+        console.log("Skal vises?", shouldShow); // Debug: viser om kortet skal vises
+        if (shouldShow) {
+          card.classList.remove('hidden'); // Viser kortet hvis shouldShow er TRUE
+        } else {
+          card.classList.add('hidden'); // Ellers skjules kortet (hvis shouldShow er IKKE er true)
+        }
+      });
+    });
+  });
+
+  
+
+  sortButtons.forEach((button) => { // Tilføjer click event til hver sorterings knap
+    button.addEventListener("click", () => {
+      sorterEfterTid(button.dataset.sortTime); // Kalder sorteringsfunktionen med "asc" eller "desc"
+    });
+  });
+
+  // Funktion til at sortere bands efter tidspunkt
+  function sorterEfterTid(direction) { // direction er enten "asc" (stigende) eller "desc" (faldende)
+    const sortedCards = [...cards].sort((cardA, cardB) => { // Laver kopi af kort array og sorterer
+      // localeCompare sammenligner to tekst-strenge og returnerer: negativt tal (A før B), 0 (ens), eller positivt tal (A efter B)
+      if (direction === "desc") { // Hvis faldende sortering
+        return cardB.dataset.time.localeCompare(cardA.dataset.time); // Sorterer med senest først
+      } else { // Hvis stigende sortering
+        return cardA.dataset.time.localeCompare(cardB.dataset.time); // Sorterer med tidligst først
+      }
+    });
+
+    sortedCards.forEach((card) => { // Løber igennem sorterede kort
+      bandList.appendChild(card); // Tilføjer kort i ny rækkefølge
+    });
+  }
+
+
+</script>
